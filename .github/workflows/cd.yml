@@ -1,0 +1,44 @@
+name: Continuous Delivery (CD)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deliver-image:
+    runs-on: ubuntu-latest
+    
+    # Permissões necessárias para publicar a imagem no GitHub Packages (GHCR)
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Autenticar no GitHub Container Registry (GHCR)
+      # Só autentica se NÃO for um PR, por segurança
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extrair Metadados do Docker (tags, labels)
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}/gitops-app
+
+    - name: Construir Imagem Docker (e Fazer Push se estiver na main)
+      uses: docker/build-push-action@v5
+      with:
+        context: ./gitops-project/app
+        # Na branch 'main', faz push. Num PR, apenas constrói para validar se a imagem compila com sucesso.
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

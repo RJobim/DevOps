@@ -1,0 +1,31 @@
+name: Continuous Integration (CI)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    # Define o diretório de trabalho onde o nosso projeto TypeScript está
+    defaults:
+      run:
+        working-directory: ./gitops-project/app
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+
+    - name: Instalar Dependências
+      run: npm install
+
+    - name: Compilar o TypeScript (Code Quality / Build)
+      run: npm run build
