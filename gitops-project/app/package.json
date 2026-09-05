@@ -1,0 +1,6 @@
+{
+  "name": "gitops-ts-app",
+  "version": "1.0.0",
+  "scripts": { "build": "tsc" },
+  "devDependencies": { "typescript": "^5.0.0" }
+}
