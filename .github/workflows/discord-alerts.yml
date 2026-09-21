@@ -1,0 +1,17 @@
+name: Discord Alerts
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'Um novo commit ou merge foi realizado no branch main por ${{ github.actor }}! Repositório: ${{ github.repository }}'
